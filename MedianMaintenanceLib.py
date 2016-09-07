@@ -23,12 +23,12 @@ class Heap(object):
 
     def insert(self, val):
 
-        if self.polarity=="max": # max heap uses negative values
+        if self.polarity=="max":    # max heap uses negative values
             val *= -1
         # Add val at end of heap
         self.keys.append(val)
         iVal = len(self.keys)-1
-        iParent = int(iVal/2)
+        iParent = int((iVal-1)/2)
 
         # bubble up
         while self.keys[iVal] < self.keys[iParent] and iVal>0:
@@ -36,15 +36,22 @@ class Heap(object):
             iVal = iParent
             iParent = int((iVal-1)/2)
 
+        # # Check for errors
+        # error_indices = [i for i in range(len(self.keys)) if self.keys[i]<self.keys[int((i-1)/2)]]
+        # if len(error_indices)>0:
+        #     raise(NameError, "Heap not in order.")
+
     def extractmax(self):
-        return self.extractmin()
+        return -1 * self.extractmin()
 
     def extractmin(self):
 
         # save current minimum to return value
-        val = self.keys[0]
+        oldmin = self.keys[0]
         # swap last element into first position
         self.keys[0] = self.keys[-1]
+        # save a copy as x; it'll be used a number of times
+        x = self.keys[0]
         # delete last element
         del self.keys[-1]
 
@@ -57,7 +64,7 @@ class Heap(object):
 
         while iChild2 < len(self.keys) and not done:
 
-            if val > self.keys[iChild1] or val > self.keys[iChild2]:
+            if x > self.keys[iChild1] or x > self.keys[iChild2]:
 
                 # Bubble down. Pick the child to swap with to be the smaller one
                 if self.keys[iChild1] < self.keys[iChild2]:
@@ -76,11 +83,16 @@ class Heap(object):
         # If new position has 1 or 0 kids, do final swap if necessary and then exit the while loop.
         if not done:    # heap not fully arranged yet, but node has at most 1 child
             if iChild1 < len(self.keys):    # value has one child. Bubble down if necessary
-                if val > self.keys[iChild1]:
+                if x > self.keys[iChild1]:
                     # swap
                     self.keys[iChild1], self.keys[iVal] = self.keys[iVal], self.keys[iChild1]
 
-        return val
+        # # Check for errors
+        # error_indices = [i for i in range(len(self.keys)) if self.keys[i]<self.keys[int((i-1)/2)]]
+        # if len(error_indices)>0:
+        #     raise(NameError, "Heap not in order.")
+
+        return oldmin
 
 
 
@@ -98,11 +110,11 @@ def median_maintenance(a):
     minheap = Heap("min")
 
     # Add one of the first two values to a to each of the heaps
-    maxheap.insert(min(a[:1]))
-    minheap.insert(max(a[:1]))
+    maxheap.insert(min(a[:2]))
+    minheap.insert(max(a[:2]))
     # Set the corresponding medians
     medians[0] = a[0]
-    medians[1] = a[0]
+    medians[1] = max(a[:2])
 
     for i in range(2, len(a)):
         val = a[i]
