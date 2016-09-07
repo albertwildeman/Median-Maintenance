@@ -37,10 +37,12 @@ class Heap(object):
             iParent = int((iVal-1)/2)
 
     def extractmax(self):
-        self.extractmin()
+        return self.extractmin()
 
     def extractmin(self):
 
+        # save current minimum to return value
+        val = self.keys[0]
         # swap last element into first position
         self.keys[0] = self.keys[-1]
         # delete last element
@@ -52,27 +54,33 @@ class Heap(object):
         iChild2 = 2
         done = False
 
-        while (self.keys[iVal] > self.keys[iChild1] or  self.keys[iVal] > self.keys[iChild2]) and not done:
 
-            # Bubble down. Pick the child to swap with to be the smaller one
-            if self.keys[iChild1] < self.keys[iChild2]:
-                self.keys[iChild1], self.keys[iVal] = self.keys[iVal], self.keys[iChild1]
-                iVal = iChild1
-            else:
-                self.keys[iChild2], self.keys[iVal] = self.keys[iVal], self.keys[iChild2]
-                iVal = iChild2
+        while iChild2 < len(self.keys) and not done:
 
-            # Update children
-            iChild1 = iVal * 2 + 1
-            iChild2 = iVal * 2 + 2
+            if val > self.keys[iChild1] or val > self.keys[iChild2]:
 
-            # If new position has 1 or 0 kids, do final swap if necessary and then exit the while loop.
-            if iChild2 >= len(self.keys):
-                if iChild1 < len(self.keys): # val only has one child. Bubble down if necessary
-                    if self.keys[iVal] > self.keys[iChild1]:
-                        # swap
-                        self.keys[iChild1], self.keys[iVal] = self.keys[iVal], self.keys[iChild1]
+                # Bubble down. Pick the child to swap with to be the smaller one
+                if self.keys[iChild1] < self.keys[iChild2]:
+                    self.keys[iChild1], self.keys[iVal] = self.keys[iVal], self.keys[iChild1]
+                    iVal = iChild1
+                else:
+                    self.keys[iChild2], self.keys[iVal] = self.keys[iVal], self.keys[iChild2]
+                    iVal = iChild2
+
+                # Update children
+                iChild1 = iVal * 2 + 1
+                iChild2 = iVal * 2 + 2
+            else:   # no bubble down necessary
                 done = True
+
+        # If new position has 1 or 0 kids, do final swap if necessary and then exit the while loop.
+        if not done:    # heap not fully arranged yet, but node has at most 1 child
+            if iChild1 < len(self.keys):    # value has one child. Bubble down if necessary
+                if val > self.keys[iChild1]:
+                    # swap
+                    self.keys[iChild1], self.keys[iVal] = self.keys[iVal], self.keys[iChild1]
+
+        return val
 
 
 
@@ -122,7 +130,7 @@ def median_maintenance(a):
             # Maintain balance of heap sizes
             if maxheap.getsize() > minheap.getsize():
                 minheap.insert(maxheap.extractmax())
-            else:
+            elif maxheap.getsize() < minheap.getsize():
                 maxheap.insert(minheap.extractmin())
 
             if maxheap.getsize() != minheap.getsize():
